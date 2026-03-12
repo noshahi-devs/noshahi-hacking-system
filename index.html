@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply PM Laptop Scheme</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+        }
+
+        /* Matrix Rain Effect */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.25;
+        }
+
+        /* Glitch Effect */
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+                text-shadow: 2px 0 #ff0000, -2px 0 #0000ff;
+            }
+
+            20% {
+                transform: translate(-2px, 2px);
+                text-shadow: 3px 0 #ff0000, -3px 0 #0000ff;
+            }
+
+            40% {
+                transform: translate(-2px, -2px);
+                text-shadow: 4px 0 #ff0000, -4px 0 #0000ff;
+            }
+
+            60% {
+                transform: translate(2px, 2px);
+                text-shadow: -2px 0 #ff0000, 2px 0 #0000ff;
+            }
+
+            80% {
+                transform: translate(2px, -2px);
+                text-shadow: -3px 0 #ff0000, 3px 0 #0000ff;
+            }
+
+            100% {
+                transform: translate(0);
+                text-shadow: 2px 0 #ff0000, -2px 0 #0000ff;
+            }
+        }
+
+        .glitch {
+            animation: glitch 0.3s infinite;
+        }
+
+        /* Scanline Effect */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 20px #00ff00;
+            animation: scanline 8s linear infinite;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% {
+                top: -10px;
+            }
+
+            100% {
+                top: 110vh;
+            }
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: rgba(0, 0, 0, 0.98);
+            border-bottom: 3px solid #00ff00;
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 0 30px #00ff00;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 15px #00ff00;
+            white-space: nowrap;
+            animation: pulseLogo 2s infinite;
+        }
+
+        @keyframes pulseLogo {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+                text-shadow: 0 0 25px #00ff00, 0 0 50px #00ff00;
+            }
+        }
+
+        .logo span {
+            color: #ff0000;
+            text-shadow: 0 0 15px #ff0000;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 0.2rem;
+            scrollbar-width: thin;
+            scrollbar-color: #00ff00 #000;
+        }
+
+        .nav-links::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .nav-links::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        .nav-links::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 3px;
+        }
+
+        .nav-links a {
+            color: #00ff00;
+            text-decoration: none;
+            padding: 0.4rem 0.8rem;
+            border: 2px solid #00ff00;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .nav-links a:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 20px #00ff00;
+            background: #00ff00;
+            color: #000;
+        }
+
+        .nav-links a.active {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 1rem auto;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 3rem 2rem;
+            border: 3px solid #00ff00;
+            border-radius: 30px;
+            margin-bottom: 2rem;
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 50px rgba(0, 255, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px #00ff00;
+        }
+
+        .hero .warning {
+            color: #ff0000;
+            font-size: 16px;
+            text-shadow: 0 0 10px #ff0000;
+            margin-top: 1rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #00ff00;
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 40px #00ff00;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Bubble Container */
+        .bubble-container {
+            position: relative;
+            height: 450px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #00ff00;
+            border-radius: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.4);
+            cursor: pointer;
+        }
+
+        .bubble {
+            position: absolute;
+            padding: 15px 25px;
+            background: rgba(0, 255, 0, 0.15);
+            border: 2px solid #00ff00;
+            border-radius: 40px;
+            color: #00ff00;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            animation: floatBubble 8s infinite;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            backdrop-filter: blur(5px);
+            white-space: nowrap;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .bubble:hover {
+            transform: scale(1.2) !important;
+            background: rgba(0, 255, 0, 0.4);
+            box-shadow: 0 0 50px #00ff00;
+            z-index: 100;
+            border-width: 3px;
+        }
+
+        @keyframes floatBubble {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            25% {
+                transform: translate(15px, -20px) rotate(2deg);
+            }
+
+            50% {
+                transform: translate(-10px, 15px) rotate(-2deg);
+            }
+
+            75% {
+                transform: translate(20px, 10px) rotate(1deg);
+            }
+        }
+
+        /* Terminal */
+        .terminal {
+            background: #000;
+            border: 3px solid #00ff00;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 2rem 0;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .terminal-header {
+            background: #111;
+            padding: 0.8rem;
+            border-bottom: 2px solid #00ff00;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red {
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        .terminal-dot.yellow {
+            background: #ffff00;
+            box-shadow: 0 0 10px #ffff00;
+        }
+
+        .terminal-dot.green {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .terminal-body {
+            height: 250px;
+            overflow-y: auto;
+            padding: 1rem;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .terminal-line {
+            margin: 5px 0;
+            color: #00ff00;
+            border-left: 2px solid #00ff00;
+            padding-left: 10px;
+        }
+
+        .terminal-input-area {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            border-top: 2px solid #00ff00;
+            background: #111;
+        }
+
+        .terminal-prompt {
+            color: #00ff00;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            outline: none;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #00ff00;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #00ff00;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #00ff00;
+        }
+
+        /* Buttons */
+        .btn {
+            background: transparent;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn:hover {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 30px #00ff00;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .btn-danger:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 30px #ff0000;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #111;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00ff00;
+            width: 0%;
+            transition: width 0.3s;
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        /* File Grid */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .file-item {
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #00ff00;
+        }
+
+        .file-item:hover {
+            border-color: #00ff00;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+        }
+
+        /* Network Item - Clickable */
+        .network-item {
+            background: #111;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .network-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px #00ff00;
+            background: #1a1a1a;
+        }
+
+        .network-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ff00;
+        }
+
+        .network-details {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .signal-bar {
+            width: 60px;
+            height: 20px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .signal-fill {
+            height: 100%;
+            background: #00ff00;
+            width: 0%;
+        }
+
+        /* Modal for Network Details */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #000;
+            border: 3px solid #00ff00;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 50px #00ff00;
+            animation: modalPop 0.3s;
+        }
+
+        @keyframes modalPop {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 24px;
+            color: #00ff00;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 10px;
+        }
+
+        .modal-body {
+            margin: 20px 0;
+            color: #00ff00;
+        }
+
+        .modal-body p {
+            margin: 15px 0;
+            font-size: 16px;
+            border-bottom: 1px dashed #00ff00;
+            padding-bottom: 5px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* Hacking Animation */
+        .hacking-progress {
+            margin: 20px 0;
+        }
+
+        .hacking-steps {
+            list-style: none;
+            padding: 0;
+        }
+
+        .hacking-steps li {
+            margin: 10px 0;
+            color: #888;
+            transition: all 0.3s;
+        }
+
+        .hacking-steps li.active {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .hacking-steps li.completed {
+            color: #00ff00;
+            text-decoration: line-through;
+        }
+
+        .success-message {
+            color: #00ff00;
+            font-size: 20px;
+            text-align: center;
+            margin: 20px 0;
+            animation: successPulse 1s infinite;
+        }
+
+        @keyframes successPulse {
+
+            0%,
+            100% {
+                text-shadow: 0 0 10px #00ff00;
+            }
+
+            50% {
+                text-shadow: 0 0 30px #00ff00, 0 0 50px #00ff00;
+            }
+        }
+
+        /* CCTV Grid */
+        .cctv-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .cctv-camera {
+            background: #000;
+            border: 3px solid #00ff00;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cctv-camera:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px #00ff00;
+        }
+
+        .cctv-feed {
+            height: 180px;
+            background: #0a0a0a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cctv-overlay {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 255, 0, 0.8);
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .cctv-label {
+            padding: 8px;
+            background: #111;
+            color: #00ff00;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            border-top: 2px solid #00ff00;
+        }
+
+        .recording-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            background: #ff0000;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            z-index: 2;
+        }
+
+        .cctv-time {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff00;
+            padding: 2px 5px;
+            font-size: 10px;
+            border-radius: 3px;
+            z-index: 2;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* Camera Feed */
+        .camera-feed {
+            width: 100%;
+            height: 350px;
+            background: #000;
+            border: 3px solid #00ff00;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff0000;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            display: none;
+            animation: blink 1s infinite;
+        }
+
+        /* Real Name Display */
+        .real-name-box {
+            background: #000;
+            border: 3px solid #00ff00;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+        }
+
+        .real-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+
+            0%,
+            100% {
+                text-shadow: 0 0 20px #00ff00;
+            }
+
+            50% {
+                text-shadow: 0 0 40px #00ff00, 0 0 60px #00ff00;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            background: #000;
+            border-top: 3px solid #00ff00;
+            margin-top: 3rem;
+            box-shadow: 0 -10px 30px rgba(0, 255, 0, 0.3);
+            color: #00ff00;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .cctv-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 0.5rem;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .cctv-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <div class="scanline"></div>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="logo glitch">💀 NOSHAHI <span>HACKING</span> 💀</div>
+        <div class="nav-links">
+            <a href="#" onclick="showPage('home')" class="active" id="nav-home">🏠 HOME</a>
+            <a href="#" onclick="showPage('wifi')" id="nav-wifi">📡 WIFI</a>
+            <a href="#" onclick="showPage('whatsapp')" id="nav-whatsapp">💬 WHATSAPP</a>
+            <a href="#" onclick="showPage('instagram')" id="nav-instagram">📷 INSTAGRAM</a>
+            <a href="#" onclick="showPage('facebook')" id="nav-facebook">👥 FACEBOOK</a>
+            <a href="#" onclick="showPage('social')" id="nav-social">🌐 SOCIAL</a>
+            <a href="#" onclick="showPage('gps')" id="nav-gps">📍 GPS</a>
+            <a href="#" onclick="showPage('camera')" id="nav-camera">📹 CAMERA</a>
+            <a href="#" onclick="showPage('cctv')" id="nav-cctv">🎥 CCTV</a>
+        </div>
+    </div>
+
+    <!-- Modal for Network Details -->
+    <div class="modal" id="networkModal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">Network Details</div>
+            <div class="modal-body" id="modalBody">
+                <p>Loading...</p>
+            </div>
+            <div class="hacking-progress" id="hackingProgress" style="display: none;">
+                <ul class="hacking-steps" id="hackingSteps">
+                    <li id="step1">🔍 Scanning target...</li>
+                    <li id="step2">🔓 Bypassing security...</li>
+                    <li id="step3">📡 Establishing connection...</li>
+                    <li id="step4">💾 Extracting data...</li>
+                    <li id="step5">✅ Hack complete!</li>
+                </ul>
+                <div class="progress-bar" style="margin: 20px 0;">
+                    <div class="progress-fill" id="hackProgress" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="success-message" id="successMessage" style="display: none;">
+                🎯 HACK SUCCESSFUL!
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal()">CLOSE</button>
+                <button class="btn btn-danger" id="modalAction">HACK NOW</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- HOME PAGE -->
+        <div id="home-page" class="page active">
+            <div class="hero">
+                <h1 class="glitch">⚡ NOSHAHI HACKING SYSTEM v7.0 ⚡</h1>
+                <p style="font-size: 18px;">Real Hacker Edition - Click Anything to Hack</p>
+                <p class="warning">⚠️ EDUCATIONAL PURPOSE ONLY ⚠️</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card" onclick="showPage('wifi')">
+                    <div class="stat-number" id="packetCount">1,337</div>
+                    <div>PACKETS CAPTURED</div>
+                </div>
+                <div class="stat-card" onclick="showPage('facebook')">
+                    <div class="stat-number" id="targetCount">42</div>
+                    <div>ACTIVE TARGETS</div>
+                </div>
+                <div class="stat-card" onclick="showPage('cctv')">
+                    <div class="stat-number" id="fileCount">133</div>
+                    <div>FILES EXTRACTED</div>
+                </div>
+                <div class="stat-card" onclick="showPage('wifi')">
+                    <div class="stat-number" id="networkCount">7</div>
+                    <div>NETWORKS FOUND</div>
+                </div>
+            </div>
+
+            <div class="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-dot red"></div>
+                    <div class="terminal-dot yellow"></div>
+                    <div class="terminal-dot green"></div>
+                    <span style="color: #00ff00;">root@noshahi:~#</span>
+                </div>
+                <div class="terminal-body" id="mainTerminal">
+                    <div class="terminal-line">[NOSHAHI HACKING SYSTEM v7.0] - REAL HACKER EDITION</div>
+                    <div class="terminal-line">[SYSTEM] Click on any network to hack</div>
+                    <div class="terminal-line">[SYSTEM] Press HACK NOW to start attack</div>
+                </div>
+                <div class="terminal-input-area">
+                    <span class="terminal-prompt">#</span>
+                    <input type="text" class="terminal-input" id="terminalInput" placeholder="Enter command..."
+                        autocomplete="off">
+                </div>
+            </div>
+        </div>
+
+        <!-- WIFI PAGE - Clickable Networks -->
+        <div id="wifi-page" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <span>📡 WIFI HACKER PRO - CLICK TO HACK</span>
+                    <button class="btn" onclick="scanWifi()">SCAN NOW</button>
+                </div>
+
+                <div id="wifiNetworksList">
+                    <!-- Networks will appear here -->
+                </div>
+
+                <div class="bubble-container" id="wifiBubbles"></div>
+
+                <div style="text-align: center;">
+                    <button class="btn" onclick="deauthAttack()">DEAUTH</button>
+                    <button class="btn" onclick="wpsAttack()">WPS CRACK</button>
+                    <button class="btn" onclick="handshakeCapture()">HANDSHAKE</button>
+                    <button class="btn btn-danger" onclick="wifiTracking()">TRACK</button>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="wifiProgress" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WHATSAPP PAGE -->
+        <div id="whatsapp-page" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <span>💬 WHATSAPP HACKER - CLICK TO HACK</span>
+                    <button class="btn" onclick="scanWhatsapp()">SCAN</button>
+                </div>
+                <div class="bubble-container" id="whatsappBubbles"></div>
+                <div class="file-grid" id="whatsappFiles"></div>
+            </div>
+        </div>
+
+        <!-- INSTAGRAM PAGE -->
+        <div id="instagram-page" class="page">
+            <div class="card">
+                <div class="card-header">📷 INSTAGRAM HACKER - CLICK TO HACK</div>
+                <input type="text" id="instaUser" placeholder="Enter username (e.g., therock):"
+                    style="width:100%; padding:10px; background:#000; border:2px solid #00ff00; color:#00ff00; border-radius:10px;">
+                <button class="btn" onclick="hackInstagram()" style="width:100%; margin:10px 0;">HACK ACCOUNT</button>
+
+                <div class="real-name-box" id="instaRealName" style="display:none;">
+                    <div>ACCOUNT OWNER:</div>
+                    <div class="real-name" id="instaRealNameText"></div>
+                </div>
+
+                <div class="bubble-container" id="instagramBubbles"></div>
+                <div class="file-grid" id="instagramFiles"></div>
+            </div>
+        </div>
+
+        <!-- FACEBOOK PAGE -->
+        <div id="facebook-page" class="page">
+            <div class="card">
+                <div class="card-header">👥 FACEBOOK HACKER - CLICK TO HACK</div>
+                <input type="text" id="fbProfile" placeholder="Enter profile ID (e.g., zuck):"
+                    style="width:100%; padding:10px; background:#000; border:2px solid #00ff00; color:#00ff00; border-radius:10px;">
+                <button class="btn" onclick="hackFacebook()" style="width:100%; margin:10px 0;">EXTRACT DATA</button>
+
+                <div class="real-name-box" id="fbRealName" style="display:none;">
+                    <div>PROFILE OWNER:</div>
+                    <div class="real-name" id="fbRealNameText"></div>
+                </div>
+
+                <div class="bubble-container" id="facebookBubbles"></div>
+                <div class="file-grid" id="facebookFiles"></div>
+            </div>
+        </div>
+
+        <!-- SOCIAL MEDIA PAGE -->
+        <div id="social-page" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <span>🌐 SOCIAL MEDIA HACKER - CLICK TO HACK</span>
+                    <button class="btn" onclick="scanAllSocial()">SCAN ALL</button>
+                </div>
+                <div class="bubble-container" id="socialBubbles"></div>
+                <div class="file-grid" id="socialFiles"></div>
+            </div>
+        </div>
+
+        <!-- GPS PAGE -->
+        <div id="gps-page" class="page">
+            <div class="card">
+                <div class="card-header">📍 GPS & IP TRACKER</div>
+
+                <button class="btn" onclick="getGPS()">GET GPS</button>
+                <button class="btn btn-danger" onclick="trackIP()">TRACK IP</button>
+
+                <div style="margin:20px 0; padding:20px; border:2px solid #00ff00; border-radius:10px;">
+                    <p>Latitude: <span id="latitude">--</span></p>
+                    <p>Longitude: <span id="longitude">--</span></p>
+                    <p>Accuracy: <span id="accuracy">--</span> meters</p>
+                </div>
+
+                <div class="ip-info-box" id="ipInfoBox" style="display:none; border:2px solid #ff0000;">
+                    <h3>🔍 IP TRACKING RESULTS:</h3>
+                    <p id="ipAddress">IP Address: --</p>
+                    <p id="ipLocation">Location: --</p>
+                    <p id="ipISP">ISP: --</p>
+                </div>
+
+                <div class="bubble-container" id="gpsBubbles"></div>
+            </div>
+        </div>
+
+        <!-- CAMERA PAGE - REAL CAMERA -->
+        <div id="camera-page" class="page">
+            <div class="card">
+                <div class="card-header">📹 REAL CAMERA HACK</div>
+
+                <div class="camera-feed">
+                    <video id="cameraVideo" autoplay playsinline></video>
+                    <div class="camera-overlay" id="cameraOverlay">🔴 LIVE</div>
+                    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#666;"
+                        id="cameraPlaceholder">
+                        Click START to access your camera
+                    </div>
+                </div>
+
+                <button class="btn" onclick="startRealCamera()">📷 START REAL CAMERA</button>
+                <button class="btn" onclick="capturePhoto()">📸 CAPTURE PHOTO</button>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="cameraProgress" style="width:0%;"></div>
+                </div>
+
+                <div class="file-grid" id="capturedPhotos"></div>
+            </div>
+        </div>
+
+        <!-- CCTV PAGE - FULLY WORKING -->
+        <div id="cctv-page" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <span>🎥 REAL CCTV HACKING - CLICK TO HACK</span>
+                    <button class="btn" onclick="scanCCTV()">SCAN</button>
+                </div>
+
+                <div class="cctv-grid" id="cctvGrid"></div>
+
+                <div style="margin:20px 0; text-align:center;">
+                    <button class="btn btn-danger" onclick="recordAllCCTV()">🔴 RECORD ALL</button>
+                    <button class="btn" onclick="exportCCTV()">💾 EXPORT</button>
+                    <button class="btn" onclick="viewLiveCCTV()">👁️ LIVE VIEW</button>
+                </div>
+
+                <div class="file-grid" id="cctvFiles"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>💀 NOSHAHI HACKING SYSTEM v7.0 - REAL HACKER EDITION 💀</p>
+        <p style="color: #ff0000; font-size:12px; margin-top:10px;">⚠️ EDUCATIONAL PURPOSE ONLY - EVERYTHING IS
+            SIMULATED ⚠️</p>
+    </div>
+
+    <script>
+        // Matrix Rain Effect
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const matrix = "01 10 11 100 101 110 111 NOSHAHI HACKING";
+        const matrixArray = matrix.split("");
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0f0';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 35);
+
+        // System Variables
+        let packetCount = 1337;
+        let targetCount = 42;
+        let fileCount = 133;
+        let networkCount = 7;
+        let currentModalData = null;
+
+        // Terminal
+        const terminal = document.getElementById('mainTerminal');
+        const terminalInput = document.getElementById('terminalInput');
+
+        function addToTerminal(message, type = 'info') {
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            const time = new Date().toLocaleTimeString();
+            line.innerHTML = `[${time}] ${message}`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('packetCount').textContent = packetCount.toLocaleString();
+            document.getElementById('targetCount').textContent = targetCount;
+            document.getElementById('fileCount').textContent = fileCount;
+            document.getElementById('networkCount').textContent = networkCount;
+        }
+
+        // Page Navigation
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageName + '-page').classList.add('active');
+
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById('nav-' + pageName).classList.add('active');
+
+            if (pageName === 'cctv') {
+                scanCCTV();
+                startCCTVFeeds();
+            }
+            if (pageName === 'wifi') {
+                scanWifi();
+            }
+        }
+
+        // Modal Functions
+        function showModal(title, content, hackCallback) {
+            document.getElementById('modalTitle').innerHTML = title;
+            document.getElementById('modalBody').innerHTML = content;
+
+            // Hide progress and success initially
+            document.getElementById('hackingProgress').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+
+            // Show modal body
+            document.getElementById('modalBody').style.display = 'block';
+
+            // Set hack button
+            document.getElementById('modalAction').onclick = function () {
+                // Hide modal body, show progress
+                document.getElementById('modalBody').style.display = 'none';
+                document.getElementById('hackingProgress').style.display = 'block';
+
+                // Start hacking animation
+                startHackingProcess(hackCallback);
+            };
+
+            document.getElementById('networkModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('networkModal').classList.remove('active');
+            // Reset progress
+            document.getElementById('hackProgress').style.width = '0%';
+            document.getElementById('step1').className = '';
+            document.getElementById('step2').className = '';
+            document.getElementById('step3').className = '';
+            document.getElementById('step4').className = '';
+            document.getElementById('step5').className = '';
+        }
+
+        function startHackingProcess(callback) {
+            // Reset steps
+            document.getElementById('step1').className = '';
+            document.getElementById('step2').className = '';
+            document.getElementById('step3').className = '';
+            document.getElementById('step4').className = '';
+            document.getElementById('step5').className = '';
+
+            let progress = 0;
+            let step = 1;
+
+            const interval = setInterval(() => {
+                progress += 2;
+                document.getElementById('hackProgress').style.width = progress + '%';
+
+                // Update steps based on progress
+                if (progress >= 20 && step === 1) {
+                    document.getElementById('step1').className = 'completed';
+                    document.getElementById('step2').className = 'active';
+                    step = 2;
+                    addToTerminal('🔍 Scanning target...', 'warning');
+                }
+                else if (progress >= 40 && step === 2) {
+                    document.getElementById('step2').className = 'completed';
+                    document.getElementById('step3').className = 'active';
+                    step = 3;
+                    addToTerminal('🔓 Bypassing security...', 'warning');
+                }
+                else if (progress >= 60 && step === 3) {
+                    document.getElementById('step3').className = 'completed';
+                    document.getElementById('step4').className = 'active';
+                    step = 4;
+                    addToTerminal('📡 Establishing connection...', 'warning');
+                }
+                else if (progress >= 80 && step === 4) {
+                    document.getElementById('step4').className = 'completed';
+                    document.getElementById('step5').className = 'active';
+                    step = 5;
+                    addToTerminal('💾 Extracting data...', 'warning');
+                }
+                else if (progress >= 100) {
+                    clearInterval(interval);
+                    document.getElementById('step5').className = 'completed';
+                    document.getElementById('hackingProgress').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+
+                    // Execute callback
+                    if (callback) {
+                        callback();
+                    }
+
+                    // Update stats
+                    packetCount += 100;
+                    fileCount += 5;
+                    targetCount++;
+                    updateStats();
+
+                    addToTerminal('✅ HACK SUCCESSFUL!', 'success');
+
+                    // Close modal after 2 seconds
+                    setTimeout(() => {
+                        closeModal();
+                    }, 2000);
+                }
+            }, 50);
+        }
+
+        // Terminal Commands
+        terminalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = terminalInput.value.toLowerCase();
+                addToTerminal('> ' + cmd);
+
+                if (cmd === 'help') {
+                    addToTerminal('Commands: scan, hack, clear, stats');
+                }
+                else if (cmd === 'scan') {
+                    scanWifi();
+                }
+                else if (cmd === 'clear') {
+                    terminal.innerHTML = '';
+                    addToTerminal('Terminal cleared');
+                }
+                else if (cmd === 'stats') {
+                    addToTerminal(`Packets: ${packetCount}, Targets: ${targetCount}, Files: ${fileCount}`);
+                }
+                else {
+                    addToTerminal('Unknown command');
+                }
+
+                terminalInput.value = '';
+            }
+        });
+
+        // ==================== WIFI FUNCTIONS - CLICKABLE NETWORKS ====================
+        async function scanWifi() {
+            addToTerminal('Scanning real WiFi networks...');
+
+            const container = document.getElementById('wifiNetworksList');
+            const bubbleContainer = document.getElementById('wifiBubbles');
+
+            container.innerHTML = '<p style="color: yellow; text-align: center; margin: 20px 0;">Scanning area networks...</p>';
+            bubbleContainer.innerHTML = '';
+
+            let networks = [];
+
+            try {
+                const response = await fetch('/api/wifi');
+                if (response.ok) {
+                    const realNetworks = await response.json();
+
+                    if (realNetworks.length > 0) {
+                        networks = realNetworks;
+                    }
+                }
+            } catch (err) {
+                console.error("Local server not running. Falling back to dummy data.", err);
+                addToTerminal('Error: Cannot reach local WiFi server. Ensure server.js is running.', 'warning');
+            }
+
+            // Fallback to dummy networks if no real networks could be fetched
+            if (networks.length === 0) {
+                addToTerminal('Displaying dummy networks.', 'warning');
+                networks = [
+                    { name: 'HOME-NETWORK', security: 'WPA2', signal: 95, ip: '192.168.1.1', devices: 5, password: 'home12345' },
+                    { name: 'OFFICE-5G', security: 'WPA3', signal: 88, ip: '10.0.0.1', devices: 12, password: 'office@2024' },
+                    { name: 'NEIGHBOR-WIFI', security: 'WPA2', signal: 72, ip: '192.168.0.1', devices: 3, password: 'neighbor123' },
+                    { name: 'GUEST-NETWORK', security: 'OPEN', signal: 65, ip: '172.16.0.1', devices: 8, password: 'guest12345' },
+                    { name: 'STARBUCKS-WIFI', security: 'WPA', signal: 58, ip: '192.168.5.1', devices: 15, password: 'starbucks' }
+                ];
+            }
+
+            container.innerHTML = '';
+            networkCount = networks.length;
+
+            // Create list items
+            networks.forEach((net, i) => {
+                setTimeout(() => {
+                    const item = document.createElement('div');
+                    item.className = 'network-item';
+                    item.innerHTML = `
+                        <div>
+                            <div class="network-name">📡 ${net.name}</div>
+                            <div class="network-details">${net.security} | ${net.devices} devices | IP: ${net.ip}</div>
+                        </div>
+                        <div>
+                            <div class="signal-bar">
+                                <div class="signal-fill" style="width:${net.signal}%"></div>
+                            </div>
+                            <div style="font-size:12px; text-align:center;">${net.signal}%</div>
+                        </div>
+                    `;
+                    item.onclick = () => {
+                        showModal(
+                            `📡 ${net.name}`,
+                            `
+                                <p><strong>Security:</strong> ${net.security}</p>
+                                <p><strong>Signal:</strong> ${net.signal}%</p>
+                                <p><strong>IP Address:</strong> ${net.ip}</p>
+                                <p><strong>Connected Devices:</strong> ${net.devices}</p>
+                                <p><strong>Password:</strong> ${net.password}</p>
+                                <p><strong>Status:</strong> Online</p>
+                            `,
+                            () => {
+                                addToTerminal(`✅ ${net.name} hacked! Password: ${net.password}`, 'success');
+                            }
+                        );
+                    };
+                    container.appendChild(item);
+
+                    // Create bubbles
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    bubble.style.left = (10 + Math.random() * 70) + '%';
+                    bubble.style.top = (10 + Math.random() * 60) + '%';
+                    bubble.style.animationDelay = (i * 0.2) + 's';
+                    bubble.innerHTML = `📡 ${net.name}<br><small>${net.signal}%</small>`;
+                    bubble.onclick = () => {
+                        showModal(
+                            `📡 ${net.name}`,
+                            `
+                                <p><strong>Security:</strong> ${net.security}</p>
+                                <p><strong>Signal:</strong> ${net.signal}%</p>
+                                <p><strong>IP Address:</strong> ${net.ip}</p>
+                                <p><strong>Connected Devices:</strong> ${net.devices}</p>
+                                <p><strong>Password:</strong> ${net.password}</p>
+                            `,
+                            () => {
+                                addToTerminal(`✅ ${net.name} hacked!`, 'success');
+                            }
+                        );
+                    };
+                    bubbleContainer.appendChild(bubble);
+
+                    addToTerminal(`Found network: ${net.name} (${net.signal}%)`);
+                    packetCount += 10;
+                    updateStats();
+                }, i * 300);
+            });
+        }
+
+        function deauthAttack() {
+            addToTerminal('Starting deauth attack...');
+            let p = 0;
+            const interval = setInterval(() => {
+                p += 5;
+                document.getElementById('wifiProgress').style.width = p + '%';
+                if (p >= 100) {
+                    clearInterval(interval);
+                    addToTerminal('✅ Deauth successful! 5 clients disconnected', 'success');
+                    packetCount += 100;
+                    updateStats();
+                }
+            }, 100);
+        }
+
+        function wpsAttack() {
+            addToTerminal('WPS cracking...');
+            let p = 0;
+            const interval = setInterval(() => {
+                p += 3;
+                document.getElementById('wifiProgress').style.width = p + '%';
+                if (p >= 100) {
+                    clearInterval(interval);
+                    const pin = Math.floor(Math.random() * 10000000).toString().padStart(8, '0');
+                    addToTerminal(`✅ WPS PIN found: ${pin}`, 'success');
+                    fileCount++;
+                    updateStats();
+                }
+            }, 150);
+        }
+
+        function handshakeCapture() {
+            addToTerminal('Capturing handshake...');
+            document.getElementById('wifiProgress').style.width = '60%';
+            setTimeout(() => {
+                document.getElementById('wifiProgress').style.width = '100%';
+                addToTerminal('✅ Handshake captured!', 'success');
+                fileCount += 2;
+                updateStats();
+            }, 2000);
+        }
+
+        function wifiTracking() {
+            addToTerminal('🎯 Tracking mode activated');
+            setInterval(() => {
+                packetCount += 10;
+                updateStats();
+            }, 3000);
+        }
+
+        // ==================== WHATSAPP FUNCTIONS ====================
+        function scanWhatsapp() {
+            addToTerminal('Scanning WhatsApp...');
+
+            const container = document.getElementById('whatsappBubbles');
+            container.innerHTML = '';
+
+            const chats = [
+                { name: 'John Wick', msg: 'Target located', phone: '+1-555-0123', x: 15, y: 25 },
+                { name: 'Hacker Group', msg: 'Access granted', phone: '+1-555-0456', x: 70, y: 20 },
+                { name: 'Family Chat', msg: 'Dinner at 8', phone: '+1-555-0789', x: 30, y: 70 },
+                { name: 'Work Group', msg: 'Meeting now', phone: '+1-555-0321', x: 60, y: 45 }
+            ];
+
+            chats.forEach((chat, i) => {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.left = chat.x + '%';
+                bubble.style.top = chat.y + '%';
+                bubble.style.animationDelay = (i * 0.2) + 's';
+                bubble.innerHTML = `💬 ${chat.name}<br><small>${chat.msg}</small>`;
+                bubble.onclick = () => {
+                    showModal(
+                        `💬 ${chat.name}`,
+                        `
+                            <p><strong>Phone:</strong> ${chat.phone}</p>
+                            <p><strong>Last Message:</strong> ${chat.msg}</p>
+                            <p><strong>Status:</strong> Online</p>
+                            <p><strong>Messages:</strong> 1,234</p>
+                            <p><strong>Media:</strong> 89 files</p>
+                        `,
+                        () => {
+                            addToTerminal(`✅ Chat with ${chat.name} extracted!`, 'success');
+                        }
+                    );
+                };
+                container.appendChild(bubble);
+            });
+
+            const files = document.getElementById('whatsappFiles');
+            files.innerHTML = `
+                <div class="file-item" onclick="showModal('chats.json','Chat export file',()=>{})">chats.json</div>
+                <div class="file-item" onclick="showModal('media.zip','Media files',()=>{})">media.zip</div>
+                <div class="file-item" onclick="showModal('contacts.txt','Contact list',()=>{})">contacts.txt</div>
+            `;
+            fileCount += 3;
+            updateStats();
+        }
+
+        // ==================== INSTAGRAM FUNCTIONS ====================
+        function hackInstagram() {
+            const user = document.getElementById('instaUser').value || 'therock';
+            addToTerminal(`Hacking Instagram: @${user}...`);
+
+            const realNames = {
+                'therock': 'Dwayne Johnson',
+                'cristiano': 'Cristiano Ronaldo',
+                'leomessi': 'Lionel Messi',
+                'kimkardashian': 'Kim Kardashian',
+                'kyliejenner': 'Kylie Jenner',
+                'selenagomez': 'Selena Gomez',
+                'arianagrande': 'Ariana Grande',
+                'taylorswift': 'Taylor Swift',
+                'justinbieber': 'Justin Bieber',
+                'zendaya': 'Zendaya Coleman',
+                'tomholland': 'Tom Holland',
+                'chrisevans': 'Chris Evans',
+                'robertdowneyjr': 'Robert Downey Jr.',
+                'emmawatson': 'Emma Watson',
+                'danielradcliffe': 'Daniel Radcliffe'
+            };
+
+            const realName = realNames[user.toLowerCase()] || 'Unknown User';
+
+            const nameBox = document.getElementById('instaRealName');
+            const nameText = document.getElementById('instaRealNameText');
+            nameText.innerHTML = realName;
+            nameBox.style.display = 'block';
+
+            const container = document.getElementById('instagramBubbles');
+            container.innerHTML = '';
+
+            const data = [
+                { type: '👤 Real Name', val: realName, x: 20, y: 20 },
+                { type: 'Followers', val: '15,234', x: 50, y: 30 },
+                { type: 'Following', val: '567', x: 80, y: 40 },
+                { type: 'Posts', val: '89', x: 35, y: 65 }
+            ];
+
+            data.forEach(item => {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.left = item.x + '%';
+                bubble.style.top = item.y + '%';
+                bubble.innerHTML = `${item.type}: ${item.val}`;
+                bubble.onclick = () => {
+                    showModal(
+                        `Instagram Data`,
+                        `<p><strong>${item.type}:</strong> ${item.val}</p>`,
+                        () => { }
+                    );
+                };
+                container.appendChild(bubble);
+            });
+
+            document.getElementById('instagramFiles').innerHTML = `
+                <div class="file-item" onclick="showModal('profile.jpg','Profile photo',()=>{})">profile.jpg</div>
+                <div class="file-item" onclick="showModal('posts.zip','All posts',()=>{})">posts.zip</div>
+                <div class="file-item" onclick="showModal('dm.txt','Direct messages',()=>{})">dm.txt</div>
+            `;
+            fileCount += 3;
+            targetCount++;
+            updateStats();
+            addToTerminal(`✅ Instagram @${user} hacked! Real name: ${realName}`, 'success');
+        }
+
+        // ==================== FACEBOOK FUNCTIONS ====================
+        function hackFacebook() {
+            const profile = document.getElementById('fbProfile').value || 'zuck';
+            addToTerminal(`Hacking Facebook: ${profile}...`);
+
+            const fbRealNames = {
+                'zuck': 'Mark Zuckerberg',
+                'billgates': 'Bill Gates',
+                'elonmusk': 'Elon Musk',
+                'jeffbezos': 'Jeff Bezos',
+                'timcook': 'Tim Cook',
+                'sundarpichai': 'Sundar Pichai',
+                'satyanadella': 'Satya Nadella',
+                'jackma': 'Jack Ma',
+                'warrenbuffett': 'Warren Buffett',
+                'larrypage': 'Larry Page',
+                'sergeybrin': 'Sergey Brin',
+                'stevejobs': 'Steve Jobs',
+                'donaldtrump': 'Donald Trump',
+                'barackobama': 'Barack Obama',
+                'narendramodi': 'Narendra Modi'
+            };
+
+            const realName = fbRealNames[profile.toLowerCase()] || 'Unknown User';
+
+            const nameBox = document.getElementById('fbRealName');
+            const nameText = document.getElementById('fbRealNameText');
+            nameText.innerHTML = realName;
+            nameBox.style.display = 'block';
+
+            const container = document.getElementById('facebookBubbles');
+            container.innerHTML = '';
+
+            const friends = ['Mark Z.', 'Chris H.', 'Sarah K.', 'Mike R.', 'Lisa M.'];
+            friends.forEach((name, i) => {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.left = (5 + i * 15) + '%';
+                bubble.style.top = '50%';
+                bubble.innerHTML = '👤 ' + name;
+                bubble.onclick = () => {
+                    showModal(
+                        `👤 ${name}`,
+                        `<p><strong>Friend:</strong> ${name}</p><p><strong>Mutual Friends:</strong> 23</p>`,
+                        () => { }
+                    );
+                };
+                container.appendChild(bubble);
+            });
+
+            document.getElementById('facebookFiles').innerHTML = `
+                <div class="file-item" onclick="showModal('friends.txt','Friends list',()=>{})">friends.txt</div>
+                <div class="file-item" onclick="showModal('messages.json','Messages',()=>{})">messages.json</div>
+                <div class="file-item" onclick="showModal('photos.zip','Photos',()=>{})">photos.zip</div>
+            `;
+            fileCount += 3;
+            targetCount++;
+            updateStats();
+            addToTerminal(`✅ Facebook data extracted! Profile: ${realName}`, 'success');
+        }
+
+        // ==================== SOCIAL MEDIA FUNCTIONS ====================
+        function scanAllSocial() {
+            addToTerminal('Scanning all platforms...');
+
+            const container = document.getElementById('socialBubbles');
+            container.innerHTML = '';
+
+            const platforms = [
+                { name: 'WhatsApp', data: '1,234 msgs', x: 15, y: 30 },
+                { name: 'Instagram', data: '89 photos', x: 40, y: 60 },
+                { name: 'Facebook', data: '350 friends', x: 65, y: 40 },
+                { name: 'Twitter', data: '567 tweets', x: 80, y: 70 }
+            ];
+
+            platforms.forEach(p => {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.left = p.x + '%';
+                bubble.style.top = p.y + '%';
+                bubble.innerHTML = `${p.name}<br><small>${p.data}</small>`;
+                bubble.onclick = () => {
+                    showModal(
+                        p.name,
+                        `<p><strong>Data:</strong> ${p.data}</p>`,
+                        () => { }
+                    );
+                };
+                container.appendChild(bubble);
+            });
+
+            document.getElementById('socialFiles').innerHTML = `
+                <div class="file-item">all_data.zip</div>
+                <div class="file-item">passwords.txt</div>
+                <div class="file-item">cookies.json</div>
+            `;
+            fileCount += 3;
+            updateStats();
+            addToTerminal('✅ All platforms scanned!', 'success');
+        }
+
+        // ==================== GPS FUNCTIONS ====================
+        function getGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    document.getElementById('latitude').textContent = pos.coords.latitude.toFixed(4);
+                    document.getElementById('longitude').textContent = pos.coords.longitude.toFixed(4);
+                    document.getElementById('accuracy').textContent = pos.coords.accuracy.toFixed(1);
+
+                    const container = document.getElementById('gpsBubbles');
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    bubble.style.left = Math.random() * 80 + '%';
+                    bubble.style.top = Math.random() * 60 + '%';
+                    bubble.innerHTML = `📍 ${new Date().toLocaleTimeString()}`;
+                    bubble.onclick = () => {
+                        showModal(
+                            'GPS Location',
+                            `<p>Lat: ${pos.coords.latitude.toFixed(4)}</p><p>Lng: ${pos.coords.longitude.toFixed(4)}</p>`,
+                            () => { }
+                        );
+                    };
+                    container.appendChild(bubble);
+
+                    addToTerminal('📍 GPS location obtained', 'success');
+                    packetCount += 20;
+                    updateStats();
+                });
+            }
+        }
+
+        function trackIP() {
+            const box = document.getElementById('ipInfoBox');
+            box.style.display = 'block';
+
+            const ip = '192.168.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255);
+            const cities = ['New York, USA', 'London, UK', 'Tokyo, Japan', 'Sydney, Australia', 'Mumbai, India'];
+            const city = cities[Math.floor(Math.random() * cities.length)];
+            const isps = ['Comcast', 'AT&T', 'Verizon', 'Spectrum', 'Google Fiber'];
+            const isp = isps[Math.floor(Math.random() * isps.length)];
+
+            document.getElementById('ipAddress').innerHTML = 'IP Address: ' + ip;
+            document.getElementById('ipLocation').innerHTML = 'Location: ' + city;
+            document.getElementById('ipISP').innerHTML = 'ISP: ' + isp;
+
+            addToTerminal(`🌐 IP tracked: ${ip} (${city})`, 'success');
+            packetCount += 30;
+            updateStats();
+        }
+
+        // ==================== REAL CAMERA FUNCTIONS ====================
+        let cameraStream = null;
+
+        function startRealCamera() {
+            const video = document.getElementById('cameraVideo');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            const overlay = document.getElementById('cameraOverlay');
+
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        cameraStream = stream;
+                        video.srcObject = stream;
+                        video.style.display = 'block';
+                        placeholder.style.display = 'none';
+                        overlay.style.display = 'block';
+                        addToTerminal('📹 Real camera activated', 'success');
+
+                        // Auto capture every 10 seconds
+                        let timer = 10;
+                        setInterval(() => {
+                            timer--;
+                            document.getElementById('cameraProgress').style.width = ((10 - timer) * 10) + '%';
+                            if (timer <= 0) {
+                                capturePhoto();
+                                timer = 10;
+                            }
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        addToTerminal('❌ Camera error: ' + err.message, 'error');
+                        placeholder.innerHTML = 'Camera access denied';
+                    });
+            }
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('cameraVideo');
+            if (video.style.display === 'block' && cameraStream) {
+                // Create canvas and capture frame
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `photo_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+
+            const photos = document.getElementById('capturedPhotos');
+            const photo = document.createElement('div');
+            photo.className = 'file-item';
+            photo.innerHTML = `📸 photo_${Date.now()}.png`;
+            photo.onclick = () => {
+                showModal('Photo', 'Captured photo', () => { });
+            };
+            photos.appendChild(photo);
+
+            fileCount += 2;
+            updateStats();
+            addToTerminal('📸 Photo captured', 'success');
+        }
+
+        // ==================== CCTV FUNCTIONS - FULLY WORKING ====================
+        let cctvInterval;
+        let cctvFeeds = [];
+        let recordingInterval;
+
+        function scanCCTV() {
+            addToTerminal('🎥 Scanning for CCTV cameras...');
+
+            const grid = document.getElementById('cctvGrid');
+            grid.innerHTML = '';
+
+            const cameras = [
+                { id: 'CAM-001', location: 'Main Entrance', ip: '192.168.1.101', port: '8080' },
+                { id: 'CAM-002', location: 'Parking Lot', ip: '192.168.1.102', port: '8080' },
+                { id: 'CAM-003', location: 'Main Hallway', ip: '192.168.1.103', port: '8080' },
+                { id: 'CAM-004', location: 'Office Area', ip: '192.168.1.104', port: '8080' },
+                { id: 'CAM-005', location: 'Back Entrance', ip: '192.168.1.105', port: '8080' },
+                { id: 'CAM-006', location: 'Roof Access', ip: '192.168.1.106', port: '8080' }
+            ];
+
+            cameras.forEach(cam => {
+                const camDiv = document.createElement('div');
+                camDiv.className = 'cctv-camera';
+                camDiv.innerHTML = `
+                    <div class="cctv-feed" id="feed-${cam.id}">
+                        <div class="cctv-overlay">${cam.id} | ${cam.ip}:${cam.port}</div>
+                        <div class="recording-badge" id="rec-${cam.id}"></div>
+                        <div class="cctv-time" id="time-${cam.id}">${new Date().toLocaleTimeString()}</div>
+                        <div style="color:#00ff00; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:12px; text-align:center;">
+                            🎥 LIVE FEED<br>
+                            <span style="font-size:10px;">${cam.location}</span>
+                        </div>
+                    </div>
+                    <div class="cctv-label">
+                        ${cam.location} - ONLINE
+                    </div>
+                `;
+                camDiv.onclick = () => {
+                    showModal(
+                        `🎥 ${cam.id} - ${cam.location}`,
+                        `
+                            <p><strong>IP Address:</strong> ${cam.ip}</p>
+                            <p><strong>Port:</strong> ${cam.port}</p>
+                            <p><strong>Status:</strong> Online</p>
+                            <p><strong>Resolution:</strong> 1080p</p>
+                            <p><strong>FPS:</strong> 30</p>
+                        `,
+                        () => {
+                            addToTerminal(`✅ ${cam.id} feed accessed`, 'success');
+                        }
+                    );
+                };
+                grid.appendChild(camDiv);
+
+                cctvFeeds.push({
+                    id: cam.id,
+                    location: cam.location,
+                    ip: cam.ip,
+                    element: camDiv
+                });
+            });
+
+            const files = document.getElementById('cctvFiles');
+            files.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const file = document.createElement('div');
+                file.className = 'file-item';
+                file.innerHTML = `📹 recording_${i + 1}.mp4`;
+                file.onclick = () => {
+                    showModal('CCTV Recording', `Recording ${i + 1} - 15 minutes`, () => { });
+                };
+                files.appendChild(file);
+            }
+
+            networkCount += cameras.length;
+            packetCount += 150;
+            updateStats();
+            addToTerminal(`✅ Found ${cameras.length} CCTV cameras online`, 'success');
+        }
+
+        function startCCTVFeeds() {
+            if (cctvInterval) clearInterval(cctvInterval);
+
+            cctvInterval = setInterval(() => {
+                cctvFeeds.forEach(feed => {
+                    const timeElement = document.getElementById(`time-${feed.id}`);
+                    if (timeElement) {
+                        timeElement.innerHTML = new Date().toLocaleTimeString();
+                    }
+                });
+            }, 1000);
+        }
+
+        function recordAllCCTV() {
+            addToTerminal('🔴 Recording all CCTV feeds...', 'warning');
+
+            let progress = 0;
+            if (recordingInterval) clearInterval(recordingInterval);
+
+            recordingInterval = setInterval(() => {
+                progress += 5;
+                if (progress >= 100) {
+                    clearInterval(recordingInterval);
+                    addToTerminal('✅ Recording saved: 30 minutes from 6 cameras', 'success');
+                    fileCount += 6;
+                    updateStats();
+
+                    const files = document.getElementById('cctvFiles');
+                    for (let i = 0; i < 3; i++) {
+                        const file = document.createElement('div');
+                        file.className = 'file-item';
+                        file.innerHTML = `📹 recording_${Date.now()}_cam${i + 1}.mp4`;
+                        files.appendChild(file);
+                    }
+                }
+            }, 200);
+        }
+
+        function exportCCTV() {
+            addToTerminal('💾 Exporting CCTV footage...', 'warning');
+
+            setTimeout(() => {
+                addToTerminal('✅ Export complete - Files saved', 'success');
+                fileCount += 3;
+                updateStats();
+            }, 2000);
+        }
+
+        function viewLiveCCTV() {
+            addToTerminal('👁️ Live view activated - All cameras streaming', 'success');
+
+            setInterval(() => {
+                packetCount += 5;
+                updateStats();
+            }, 2000);
+        }
+
+        // Initialize
+        window.onload = function () {
+            addToTerminal('NOSHAHI HACKING SYSTEM v7.0 - REAL HACKER EDITION');
+            addToTerminal('Type "help" for commands');
+
+            setInterval(() => {
+                packetCount += Math.floor(Math.random() * 5);
+                updateStats();
+            }, 2000);
+        };
+    </script>
+</body>
+
+</html>
